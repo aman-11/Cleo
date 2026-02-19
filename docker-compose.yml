@@ -1,0 +1,33 @@
+services:
+  cleo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleo-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DISCORD_USER_ID=${DISCORD_USER_ID}
+      - WATCHED_USERNAME=${WATCHED_USERNAME}
+      - MEM0_API_URL=http://mem0:8080
+      - MEM0_API_KEY=${MEM0_API_KEY}
+      - OPENCLAW_API_URL=http://openclaw:18789
+      - HEARTBEAT_CRON=${HEARTBEAT_CRON:-*/30 * * * *}
+    networks:
+      - cleo-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  cleo-network:
+    external: true
+    name: cleo-network

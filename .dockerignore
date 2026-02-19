@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Planning files (local only, don't include in container)
+.planning/
+Plans/
+
+# Infrastructure scripts (not needed in container)
+.infra/
+
+# Docker files (don't copy into container)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# MacOS
+.DS_Store
+
+# Testing
+coverage/
+.nyc_output/
+
+# README
+README.md
+*.md
