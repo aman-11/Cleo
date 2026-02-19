@@ -14,7 +14,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY server.py .
+COPY src/ ./src/
 
 # Run as non-root
 RUN useradd -m -u 1001 mem0user
@@ -27,5 +27,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# Run server
-CMD ["python", "server.py"]
+# Run server using Python module
+CMD ["python", "-m", "src.main"]
