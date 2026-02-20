@@ -1,6 +1,6 @@
-import { MCPTool, ToolInput, ToolOutput } from 'mcp-framework';
+import { MCPTool, ToolResponse } from 'mcp-framework';
 import { z } from 'zod';
-import { ToolConfig, mem0Request } from './base.js';
+import { mem0Request, getToolConfig } from './base.js';
 
 const inputSchema = z.object({
   content: z.string().describe('The content to store as a memory'),
@@ -8,21 +8,15 @@ const inputSchema = z.object({
   metadata: z.record(z.any()).optional().describe('Optional metadata to attach'),
 });
 
-export class AddMemoryTool extends MCPTool<typeof inputSchema> {
+class AddMemoryTool extends MCPTool {
   name = 'add_memory';
   description = 'Store a new memory in mem0. Use for remembering facts, preferences, decisions, or context.';
   schema = inputSchema;
 
-  private config: ToolConfig;
-
-  constructor(config: ToolConfig) {
-    super();
-    this.config = config;
-  }
-
-  async execute(input: z.infer<typeof inputSchema>): Promise<ToolOutput> {
+  async execute(input: z.infer<typeof inputSchema>): Promise<string | ToolResponse> {
     try {
-      const result = await mem0Request(this.config, '/memories', {
+      const config = getToolConfig();
+      const result = await mem0Request(config, '/memories', {
         method: 'POST',
         body: JSON.stringify({
           content: input.content,
@@ -31,20 +25,11 @@ export class AddMemoryTool extends MCPTool<typeof inputSchema> {
         }),
       });
 
-      return {
-        content: [{
-          type: 'text',
-          text: `Memory added successfully: ${JSON.stringify(result)}`,
-        }],
-      };
+      return `Memory added successfully: ${JSON.stringify(result)}`;
     } catch (error) {
-      return {
-        content: [{
-          type: 'text',
-          text: `Failed to add memory: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        }],
-        isError: true,
-      };
+      return this.createErrorResponse(error as Error);
     }
   }
 }
+
+export default AddMemoryTool;

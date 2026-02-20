@@ -8,6 +8,16 @@ export interface ToolConfig {
 }
 
 /**
+ * Get tool configuration from environment variables
+ */
+export function getToolConfig(): ToolConfig {
+  return {
+    apiUrl: process.env.MEM0_API_URL || 'http://localhost:8080',
+    apiKey: process.env.MEM0_API_KEY || '',
+  };
+}
+
+/**
  * Make authenticated request to mem0 REST API
  */
 export async function mem0Request(
