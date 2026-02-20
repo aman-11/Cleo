@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
         # Initialize mem0 client
         from mem0 import Memory
         config = get_mem0_config()
-        logger.info("Initializing mem0 with pgvector backend...")
+        logger.info("Initializing mem0 with Qdrant backend (100% FREE models)...")
         mem0_client = Memory.from_config(config)
         logger.info("mem0 initialized successfully")
 
