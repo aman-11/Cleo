@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "mem0": {
+      "type": "stdio",
+      "command": "ssh",
+      "args": [
+        "cleo-vps",
+        "docker", "exec", "-i", "cleo-mem0-mcp",
+        "node", "dist/index.js"
+      ],
+      "env": {
+        "MEM0_API_URL": "http://mem0:8080",
+        "MEM0_API_KEY": "${MEM0_API_KEY}"
+      }
+    }
+  }
+}
