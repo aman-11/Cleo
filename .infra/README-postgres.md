@@ -33,7 +33,7 @@ mem0 SDK automatically creates:
 ### `memories` table
 - `id` - UUID primary key
 - `content` - Memory text content
-- `embedding` - Vector embedding (1536 dimensions for OpenAI ada-002)
+- `embedding` - Vector embedding (384 dimensions for HuggingFace all-MiniLM-L6-v2)
 - `user_id` - User namespace (always "aman" for single-tenant)
 - `metadata` - JSONB metadata
 - `created_at` - Timestamp

@@ -1,6 +1,10 @@
 #!/bin/bash
 # .infra/ssh-tunnel.sh - Persistent SSH tunnel to VPS mem0 API
 #
+# DEPRECATED: This script will be obsolete after Tailscale setup (Plan 01.5-06).
+# Tailscale MagicDNS provides automatic hostname resolution without SSH tunnels.
+# Archive this file after verifying Tailscale connectivity works.
+#
 # This script creates an auto-reconnecting SSH tunnel from local machine
 # to the VPS mem0 API. Used by local Claude Code sessions to write to
 # the shared mem0 brain.

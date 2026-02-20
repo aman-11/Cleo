@@ -1,5 +1,8 @@
 # PostgreSQL + mem0 Storage FAQ
 
+> **Note (Phase 1.5):** Qdrant is now the PRIMARY vector store. PostgreSQL with pgvector
+> is retained for structured data and as a backup vector store option. See Plan 01.5-01.
+
 ## Q: Where are we creating the PostgreSQL database and user?
 
 **A:** Automatically on first container start via `.infra/postgres-init.sql`
@@ -92,8 +95,8 @@ PostgreSQL Container (pgvector/pgvector:pg16)
 
 ### Vector Embeddings:
 
-- **Model:** OpenAI `text-embedding-3-small` (1536 dimensions)
-- **Type:** `VECTOR(1536)` (pgvector extension)
+- **Model:** HuggingFace `all-MiniLM-L6-v2` (384 dimensions, FREE)
+- **Type:** `VECTOR(384)` (pgvector extension)
 - **Index:** HNSW or IVFFlat (for fast similarity search)
 - **Search:** Cosine similarity via `<->` operator
 

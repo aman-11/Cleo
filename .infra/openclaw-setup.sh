@@ -3,6 +3,9 @@
 # OpenClaw Deployment Script
 # Follows official docs: https://docs.openclaw.ai/install/docker
 #
+# NOTE: This script handles INITIAL OpenClaw deployment only.
+# For post-deployment configuration, use scripts/openclaw-post-deploy.sh (Plan 01.5-05).
+#
 # CONTEXT.md LOCKED DECISION:
 # - Clone official repo
 # - Checkout v2026.1.29 (CVE-2026-25253 patched)
