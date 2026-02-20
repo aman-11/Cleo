@@ -83,6 +83,33 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  mem0-mcp:
+    build:
+      context: .
+      dockerfile: packages/mem0-mcp-server/Dockerfile
+    image: cleo/mem0-mcp:latest
+    container_name: cleo-mem0-mcp
+    environment:
+      - MEM0_API_URL=http://mem0:8080
+      - MEM0_API_KEY=${MEM0_API_KEY}
+    networks:
+      - cleo-network
+    depends_on:
+      mem0:
+        condition: service_healthy
+    restart: unless-stopped
+    # Note: MCP servers use stdio transport, not HTTP
+    # This container is spawned by OpenClaw, not accessed directly
+    # No ports exposed - OpenClaw manages I/O via Docker exec
+    labels:
+      - "cleo.service=mem0-mcp"
+      - "cleo.type=mcp-server"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   postgres-data:
     name: cleo-postgres-data
