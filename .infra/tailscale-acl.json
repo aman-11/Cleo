@@ -1,0 +1,46 @@
+{
+  "$schema": "https://tailscale.com/acl-schema.json",
+  "comment": "Cleo VPS Tailscale ACL Configuration",
+
+  "tagOwners": {
+    "tag:cleo-vps": ["autogroup:admin"],
+    "tag:aman-devices": ["autogroup:admin"]
+  },
+
+  "acls": [
+    {
+      "comment": "aman's devices can access VPS services",
+      "action": "accept",
+      "src": ["tag:aman-devices"],
+      "dst": [
+        "tag:cleo-vps:22",
+        "tag:cleo-vps:8080",
+        "tag:cleo-vps:6333",
+        "tag:cleo-vps:18789"
+      ]
+    },
+    {
+      "comment": "VPS can respond to any request",
+      "action": "accept",
+      "src": ["tag:cleo-vps"],
+      "dst": ["*:*"]
+    }
+  ],
+
+  "ssh": [
+    {
+      "comment": "aman can SSH to VPS via Tailscale SSH",
+      "action": "accept",
+      "src": ["tag:aman-devices"],
+      "dst": ["tag:cleo-vps"],
+      "users": ["aman", "root"]
+    }
+  ],
+
+  "nodeAttrs": [
+    {
+      "target": ["tag:cleo-vps"],
+      "attr": ["funnel:off"]
+    }
+  ]
+}
