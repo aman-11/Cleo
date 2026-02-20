@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Test files
+*.test.ts
+*.spec.ts
+__tests__
+
+# Local development
+.env
+.env.local
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
