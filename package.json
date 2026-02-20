@@ -1,34 +1,23 @@
 {
-  "name": "cleo",
-  "version": "0.1.0",
-  "description": "Autonomous Cleo - aman's digital brain and VPS-hosted AI agent",
-  "main": "dist/index.js",
+  "name": "cleo-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cleo - Autonomous digital brain for aman",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
-    "lint": "eslint src/**/*.ts",
-    "test": "jest"
-  },
-  "dependencies": {
-    "node-cron": "^3.0.3",
-    "express": "^4.18.2",
-    "dotenv": "^16.4.1",
-    "axios": "^1.6.7"
+    "build": "pnpm -r --filter='./packages/*' build",
+    "build:mem0": "pnpm --filter @cleo/mem0-mcp-server build",
+    "dev:mem0": "pnpm --filter @cleo/mem0-mcp-server dev",
+    "docker:build:mem0": "docker build -f packages/mem0-mcp-server/Dockerfile -t cleo/mem0-mcp .",
+    "clean": "pnpm -r clean && rm -rf node_modules"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/node": "^25.3.0",
-    "@types/node-cron": "^3.0.11",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.56.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
   },
-  "author": "aman",
-  "license": "MIT"
+  "packageManager": "pnpm@8.15.0"
 }
