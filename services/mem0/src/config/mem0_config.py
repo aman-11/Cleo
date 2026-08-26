@@ -69,8 +69,8 @@ def get_mem0_config() -> Dict[str, Any]:
                 "model": llm_model,
                 "temperature": 0.1,
                 "max_tokens": 2000,
-                "api_base": "https://openrouter.ai/api/v1",
-                "api_key": os.getenv("OPENROUTER_API_KEY"),
+                # LiteLLM automatically routes openrouter/* models
+                # No api_base needed - handled by model prefix
             }
         },
         "embedder": {

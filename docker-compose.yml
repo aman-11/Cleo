@@ -11,10 +11,20 @@ services:
       - WATCHED_USERNAME=${WATCHED_USERNAME}
       - MEM0_API_URL=http://mem0:8080
       - MEM0_API_KEY=${MEM0_API_KEY}
-      - OPENCLAW_API_URL=http://openclaw:18789
+      - OPENCLAW_API_URL=${OPENCLAW_API_URL:-http://openclaw:18789}
       - HEARTBEAT_CRON=${HEARTBEAT_CRON:-*/30 * * * *}
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_DB=${POSTGRES_DB:-cleo}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - TAILSCALE_HOSTNAME=${TAILSCALE_HOSTNAME:-cleo-vps}
+      - TAILSCALE_IP=${TAILSCALE_IP:-Unknown}
+    ports:
+      - "127.0.0.1:3000:3000"
     networks:
       - cleo-network
+      - openclaw-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
@@ -31,3 +41,6 @@ networks:
   cleo-network:
     external: true
     name: cleo-network
+  openclaw-network:
+    external: true
+    name: openclaw_default

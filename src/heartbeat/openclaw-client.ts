@@ -55,11 +55,25 @@ class OpenClawClient {
 
   /**
    * Check OpenClaw Gateway health
+   * Note: OpenClaw /health returns HTML (Control UI), not JSON
+   * So we just check if we can connect (200 OK = healthy)
    */
   async checkHealth(): Promise<HealthResponse> {
     try {
-      const response = await this.client.get<HealthResponse>('/health');
-      return response.data;
+      const response = await this.client.get('/health');
+      // If we get a 200 response (even if it's HTML), consider it healthy
+      if (response.status === 200) {
+        return {
+          status: 'healthy',
+          channels: { discord: true },  // Assume Discord is configured
+          version: 'unknown',
+        };
+      }
+      return {
+        status: 'unhealthy',
+        channels: { discord: false },
+        version: 'unknown',
+      };
     } catch (error) {
       console.error('OpenClaw health check failed:', error);
       return {

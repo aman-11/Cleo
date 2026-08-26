@@ -1,17 +1,35 @@
 {
-  "name": "cleo-monorepo",
-  "version": "1.0.0",
+  "name": "cleo",
+  "version": "0.1.0",
   "private": true,
   "description": "Cleo - Autonomous digital brain for aman",
+  "type": "module",
+  "main": "dist/index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "pnpm -r --filter='./packages/*' build",
+    "build": "tsc && mkdir -p dist/public && cp -r src/public/* dist/public/ 2>/dev/null || true",
+    "build:all": "pnpm build && pnpm -r --filter='./packages/*' build",
     "build:mem0": "pnpm --filter @cleo/mem0-mcp-server build",
+    "dev": "tsx src/index.ts",
     "dev:mem0": "pnpm --filter @cleo/mem0-mcp-server dev",
+    "docker:build": "docker build -t cleo/app .",
     "docker:build:mem0": "docker build -f packages/mem0-mcp-server/Dockerfile -t cleo/mem0-mcp .",
-    "clean": "pnpm -r clean && rm -rf node_modules"
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.4.0",
+    "express": "^5.0.0",
+    "node-cron": "^3.0.3",
+    "pg": "^8.11.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/node": "^20.11.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.10.0",
     "typescript": "^5.3.3",
     "tsx": "^4.7.0"
   },

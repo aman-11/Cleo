@@ -3,17 +3,23 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# Install pnpm
+RUN npm install -g pnpm@8.15.0
+
 # Copy dependency manifests first (cache layer)
-COPY package*.json tsconfig.json ./
+COPY package.json pnpm-lock.yaml tsconfig.json ./
 
 # Install all dependencies (including devDependencies for build)
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY src/ ./src/
 
 # Build TypeScript
-RUN npm run build
+RUN pnpm build
+
+# Copy public directory (HTML, CSS, JS that don't need transpiling)
+RUN mkdir -p dist/public && cp -r src/public/* dist/public/ 2>/dev/null || true
 
 # Stage 2: Production
 FROM node:22-alpine
@@ -30,7 +36,7 @@ WORKDIR /app
 # Copy built artifacts and production dependencies only
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 
 # Expose health check port
 EXPOSE 3000

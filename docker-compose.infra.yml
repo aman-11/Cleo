@@ -25,31 +25,6 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: cleo-qdrant
-    ports:
-      - "127.0.0.1:6333:6333"   # HTTP API - localhost only
-      - "127.0.0.1:6334:6334"   # gRPC API - localhost only
-    volumes:
-      - qdrant-data:/qdrant/storage
-    environment:
-      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
-    networks:
-      - cleo-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
   mem0:
     build:
       context: ./services/mem0
@@ -66,7 +41,15 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=mem0
       - MEM0_API_KEY=${MEM0_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # Qdrant Configuration (Cloud or local)
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - QDRANT_COLLECTION=${QDRANT_COLLECTION}
+      # AI Model Configuration (100% FREE)
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+      - MEM0_LLM_MODEL=${MEM0_LLM_MODEL}
+      - MEM0_EMBEDDING_MODEL=${MEM0_EMBEDDING_MODEL}
     ports:
       - "127.0.0.1:8080:8080"  # Only localhost, for SSH tunnel access
     networks:
@@ -92,18 +75,62 @@ services:
     environment:
       - MEM0_API_URL=http://mem0:8080
       - MEM0_API_KEY=${MEM0_API_KEY}
+      - MCP_PORT=3001
+      - MCP_ENDPOINT=/mcp
     networks:
       - cleo-network
+    ports:
+      - "127.0.0.1:3001:3001"
     depends_on:
       mem0:
         condition: service_healthy
     restart: unless-stopped
-    # Note: MCP servers use stdio transport, not HTTP
-    # This container is spawned by OpenClaw, not accessed directly
-    # No ports exposed - OpenClaw manages I/O via Docker exec
+    # MCP server running on HTTP transport for OpenClaw integration
+    # Accessible at http://mem0-mcp:3001/mcp (internal) or http://localhost:3001/mcp (from host)
     labels:
       - "cleo.service=mem0-mcp"
       - "cleo.type=mcp-server"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --server-response --spider -q http://localhost:3001/mcp 2>&1 | grep -q 'HTTP' && exit 0 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  cleo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cleo/app:latest
+    container_name: cleo-app
+    restart: unless-stopped
+    depends_on:
+      mem0:
+        condition: service_healthy
+    environment:
+      - DISCORD_USER_ID=${DISCORD_USER_ID}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - OPENCLAW_API_URL=http://openclaw-openclaw-gateway-1:18789
+      - MEM0_API_URL=http://mem0:8080
+      - MEM0_API_KEY=${MEM0_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - WATCHED_USERNAME=${WATCHED_USERNAME}
+      - WATCHED_REPOS=${WATCHED_REPOS:-github.com/${WATCHED_USERNAME}}
+    networks:
+      - cleo-network
+    external_links:
+      - openclaw-openclaw-gateway-1:openclaw
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     logging:
       driver: json-file
       options:
@@ -113,8 +140,6 @@ services:
 volumes:
   postgres-data:
     name: cleo-postgres-data
-  qdrant-data:
-    driver: local
 
 networks:
   cleo-network:

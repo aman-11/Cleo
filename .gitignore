@@ -1,3 +1,15 @@
 .planning/
 .zed/
 node_modules/
+dist/
+
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Tool-local state
+.serena/
+.claude/settings.local.json

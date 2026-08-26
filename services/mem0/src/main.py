@@ -54,6 +54,16 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down mem0 server")
 
 
+def get_mem0_client():
+    """Get current mem0 client instance (avoids closure capture)."""
+    return mem0_client
+
+
+def get_memory_service():
+    """Get current memory service instance (avoids closure capture)."""
+    return memory_service
+
+
 def create_app() -> FastAPI:
     """
     Application factory.
@@ -68,8 +78,8 @@ def create_app() -> FastAPI:
         lifespan=lifespan
     )
 
-    # Register routes (inject service dependency)
-    memory_router = create_memory_router(memory_service, mem0_client)
+    # Register routes (pass getter functions to avoid closure capture)
+    memory_router = create_memory_router(get_memory_service, get_mem0_client)
     app.include_router(memory_router)
 
     return app

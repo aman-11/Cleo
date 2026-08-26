@@ -16,13 +16,13 @@ from ..models.memory import (
 from ..middleware.auth import verify_api_key
 
 
-def create_memory_router(service: MemoryService, mem0_client) -> APIRouter:
+def create_memory_router(get_service, get_client) -> APIRouter:
     """
     Create memory API router with dependency injection.
 
     Args:
-        service: MemoryService instance
-        mem0_client: mem0 client for health check
+        get_service: Callable that returns MemoryService instance
+        get_client: Callable that returns mem0 client instance
 
     Returns:
         APIRouter: Configured router
@@ -32,18 +32,20 @@ def create_memory_router(service: MemoryService, mem0_client) -> APIRouter:
     @router.get("/", tags=["info"])
     async def root():
         """Root endpoint with API documentation link."""
+        client = get_client()
         return {
             "service": "Cleo mem0 API",
             "version": "1.0.0",
             "docs": "/docs",
             "health": "/health",
-            "status": "healthy" if mem0_client else "degraded"
+            "status": "healthy" if client else "degraded"
         }
 
     @router.get("/health", response_model=HealthResponse, tags=["info"])
     async def health():
         """Health check endpoint for Docker and monitoring."""
-        if mem0_client is None:
+        client = get_client()
+        if client is None:
             return HealthResponse(
                 status="degraded",
                 service="mem0",
@@ -64,11 +66,11 @@ def create_memory_router(service: MemoryService, mem0_client) -> APIRouter:
         if x_api_key:
             verify_api_key(x_api_key)
 
-        if mem0_client is None:
+        if get_client() is None:
             raise HTTPException(status_code=503, detail="mem0 not initialized")
 
         try:
-            return service.add_memory(memory)
+            return get_service().add_memory(memory)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
@@ -89,11 +91,11 @@ def create_memory_router(service: MemoryService, mem0_client) -> APIRouter:
         if x_api_key:
             verify_api_key(x_api_key)
 
-        if mem0_client is None:
+        if get_client() is None:
             raise HTTPException(status_code=503, detail="mem0 not initialized")
 
         try:
-            return service.search_memories(query, user_id, limit)
+            return get_service().search_memories(query, user_id, limit)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
@@ -108,11 +110,11 @@ def create_memory_router(service: MemoryService, mem0_client) -> APIRouter:
         if x_api_key:
             verify_api_key(x_api_key)
 
-        if mem0_client is None:
+        if get_client() is None:
             raise HTTPException(status_code=503, detail="mem0 not initialized")
 
         try:
-            return service.get_all_memories(user_id)
+            return get_service().get_all_memories(user_id)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
@@ -126,11 +128,11 @@ def create_memory_router(service: MemoryService, mem0_client) -> APIRouter:
         if x_api_key:
             verify_api_key(x_api_key)
 
-        if mem0_client is None:
+        if get_client() is None:
             raise HTTPException(status_code=503, detail="mem0 not initialized")
 
         try:
-            return service.update_memory(memory_id, memory)
+            return get_service().update_memory(memory_id, memory)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
@@ -145,11 +147,11 @@ def create_memory_router(service: MemoryService, mem0_client) -> APIRouter:
         if x_api_key:
             verify_api_key(x_api_key)
 
-        if mem0_client is None:
+        if get_client() is None:
             raise HTTPException(status_code=503, detail="mem0 not initialized")
 
         try:
-            return service.delete_memory(memory_id)
+            return get_service().delete_memory(memory_id)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
